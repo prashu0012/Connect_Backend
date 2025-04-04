@@ -27,10 +27,10 @@ const PORT = process.env.PORT || 5000;
 
 // Use CORS middleware with environment-based frontend URL
 app.use(cors({
-    // origin: process.env.FRONTEND_URL || "http://localhost:5173",
-    origin: (origin, callback) => {
-    callback(null, origin); // cccept all origins dynamically
-  },
+    origin: process.env.FRONTEND_URL || "http://localhost:5173",
+  //   origin: (origin, callback) => {
+  //   callback(null, origin); // cccept all origins dynamically
+  // },
     credentials: true
 }));
 
