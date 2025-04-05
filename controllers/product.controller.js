@@ -1,6 +1,65 @@
 import { redis } from "../lib/redis.js";
 import Product from "../models/product.model.js";
 import cloudinary from "../lib/cloudinary.js";
+import { dirname } from "path";
+import mongoose from "mongoose";  
+import { fileURLToPath } from "url";
+import { v4 as uuidv4 } from "uuid";
+import fs from "fs";
+import path from "path";
+
+
+
+
+
+// ✅ Define __dirname manually for ES Modules
+const __dirname = dirname(fileURLToPath(import.meta.url));
+
+
+
+
+export const searchByName = async (req, res) => {
+  try {
+    const deity = req.query.deity || req.query.name; // fallback if name is passed
+
+    if (!deity || typeof deity !== "string") {
+      return res.status(400).json({ success: false, message: "Missing or invalid deity query parameter" });
+    }
+
+    const trimmedDeity = deity.trim();
+
+    // Escape special regex characters
+    const escapedDeity = trimmedDeity.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+
+    // Generate prefixes (e.g., "R", "Ra", "Ram", "Rama" for "Rama")
+    const prefixes = [];
+    for (let i = 1; i <= trimmedDeity.length; i++) {
+      prefixes.push(trimmedDeity.substring(0, i));
+    }
+
+    const escapedPrefixes = prefixes.map(p => 
+      p.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
+    );
+
+    const regexPattern = `(${escapedDeity})|^(${escapedPrefixes.join('|')})$`;
+
+    const products = await Product.find({
+      $or: [
+        { name: { $regex: regexPattern, $options: "i" } },
+        { category: { $regex: regexPattern, $options: "i" } }
+      ]
+    });
+
+    res.json({ success: true, products });
+  } catch (error) {
+    console.error("Search error:", error); // log the actual error
+    res.status(500).json({ success: false, message: "Server Error" });
+  }
+};
+
+
+
+
 
 export const getAllProducts = async (req, res) => {
   try {
@@ -140,14 +199,18 @@ export const getRecommendedProducts = async (req, res) => {
 };
 
 export const getProductByCategory = async (req, res) => {
-  const { category } = req.params;
-
   try {
-    const products = await Product.find({ category });
-    res.json(products);
+    const rawCategory = req.params.category;
+    const category = rawCategory.replace(/-/g, " ");
+
+    const products = await Product.find({
+      category: `{$regex: new RegExp(^${category}$, "i")}`,
+    });
+
+    res.status(200).json(products);
   } catch (error) {
-    console.log("Error in getProductByCategory controller", error.message);
-    res.status(500).json({ message: "Server error", error: error.message });
+    console.error("Error fetching category:", error);
+    res.status(500).json({ message: "Internal Server Error" });
   }
 };
 

@@ -1,10 +1,10 @@
 import mongoose from "mongoose";
+import { v4 as uuidv4 } from "uuid"; // ✅ Import UUID
 
 const productSchema = new mongoose.Schema({
-    name:{
-        type: String,
-        required: true
-    },
+  productId: { type: String, unique: true, required: true, default: uuidv4 }, 
+  sku: { type: String, unique: true, required: true, default: uuidv4 }, //  Ensure unique SKU
+  name: { type: String, required: true },
     description:{
         type: String,
         required: true
@@ -22,6 +22,10 @@ const productSchema = new mongoose.Schema({
         type: String,
         required: true
     },
+    size: {
+        type: String,
+        required: true
+    },
     isFeatured:{
         type: Boolean,
         default: false
@@ -32,3 +36,4 @@ const productSchema = new mongoose.Schema({
 const Product = mongoose.model("Product", productSchema);
 
 export default Product
+
