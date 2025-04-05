@@ -28,11 +28,12 @@
 
 import express from "express";
 import upload from "../middleware/multerConfig.js"; // Import multer config
-import { 
+import {
     getAllProducts,
     getFeaturedProducts,
     getRecommendedProducts,
     getProductByCategory,
+    searchByName,
     createProduct,
     toggleFeaturedProduct,
     deleteProduct
@@ -45,6 +46,7 @@ router.get("/", getAllProducts); // Admin
 router.get("/featured", getFeaturedProducts);
 router.get("/category/:category", getProductByCategory);
 router.get("/recommendations", getRecommendedProducts); // Admin
+router.get("/search", searchByName);
 
 // Use `upload.single("image")` for image upload
 router.post("/", upload.single("image"), createProduct); // Admin
