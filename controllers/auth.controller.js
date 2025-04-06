@@ -40,7 +40,9 @@ const setCookies = (res, accessToken, refreshToken) => {
 };
 
 export const signup = async (req, res) => {
-  const { email, password, name, role } = req.body;
+  const { email, password, name } = req.body;
+  let role;
+  (!req.body.role) ? role="seller" : role=req.body.role
   try {
     const userExists = await User.findOne({ email });
 
@@ -56,12 +58,6 @@ export const signup = async (req, res) => {
     setCookies(res, accessToken, refreshToken);
 
     res.status(201).json({
-      user: {
-        _id: user._id,
-        name: user.name,
-        email: user.email,
-        role: user.role,
-      },
       message: "User created successfully",
     });
   } catch (error) {
