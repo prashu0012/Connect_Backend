@@ -3,36 +3,36 @@ import bcrypt from "bcryptjs";
 
 
 const userSchema = new mongoose.Schema({
-    name:{
+    name: {
         type: String,
         required: [true, "Name is required"]
     },
-    email:{
+    email: {
         type: String,
         required: [true, "Email is required"],
         unique: true,
         lowercase: true,
         trim: true
     },
-    password:{
+    password: {
         type: String,
         required: [true, "Password is required"],
         minlength: [6, "Password must be at least 6 characters long"]
     },
-    role:{
+    role: {
         type: String,
-        enum: ["customer", "seller"],
-        required: [true, "Role is required"]
+        enum: ["customer", "seller", "admin"],
+        // required: [true, "Role is required"]
     },
-    cartItems:[
+    cartItems: [
         {
-            quantity:{
+            quantity: {
                 type: Number,
                 default: 1
             },
-            product:{
+            product: {
                 type: mongoose.Schema.Types.ObjectId,
-                ref:"Product"
+                ref: "Product"
             }
         }
     ]
@@ -43,7 +43,7 @@ const userSchema = new mongoose.Schema({
 
 // pre save hook to hash password before saving to database
 userSchema.pre("save", async function (next) {
-    if(!this.isModified("password")) return next();
+    if (!this.isModified("password")) return next();
 
     try {
         const salt = await bcrypt.genSalt(10);
@@ -58,7 +58,7 @@ userSchema.pre("save", async function (next) {
 userSchema.methods.comparePassword = async function (password) {
     return bcrypt.compare(password, this.password);
 };
-  
+
 const User = mongoose.model("User", userSchema);
 
 export default User;
