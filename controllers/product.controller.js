@@ -53,7 +53,7 @@ export const searchByName = async (req, res) => {
     res.json({ success: true, products });
   } catch (error) {
     console.error("Search error:", error); // log the actual error
-    res.status(500).json({ success: false, message: "Server Error" });
+    res.status(500).json({ success: false, message: "Server Error.." });
   }
 };
 
@@ -63,7 +63,7 @@ export const searchByName = async (req, res) => {
 
 export const getAllProducts = async (req, res) => {
   try {
-    const products = await Product.find({}); // find all products
+    const products = await Product.find(); // find all products
     res.json({ products });
   } catch (error) {
     console.log("Error in getAllProducts controller", error.message);

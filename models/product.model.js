@@ -2,7 +2,7 @@ import mongoose from "mongoose";
 import { v4 as uuidv4 } from "uuid"; // ✅ Import UUID
 
 const productSchema = new mongoose.Schema({
-  productId: { type: String, unique: true, required: true, default: uuidv4 }, 
+//   productId: { type: String, unique: true, required: true, default: uuidv4 }, 
   sku: { type: String, unique: true, required: true, default: uuidv4 }, //  Ensure unique SKU
   name: { type: String, required: true },
     description:{
