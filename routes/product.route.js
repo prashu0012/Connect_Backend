@@ -36,13 +36,15 @@ import {
     searchByName,
     createProduct,
     toggleFeaturedProduct,
-    deleteProduct
+    deleteProduct,
+    getProductsById
 } from "../controllers/product.controller.js";
 import { adminRoute, protectRoute } from "../middleware/auth.middleware.js";
 
 const router = express.Router();
 
 router.get("/", getAllProducts); // Admin
+router.get("/:id", getProductsById); // Admin
 router.get("/featured", getFeaturedProducts);
 router.get("/category/:category", getProductByCategory);
 router.get("/recommendations", getRecommendedProducts); // Admin

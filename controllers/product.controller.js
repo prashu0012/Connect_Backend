@@ -72,7 +72,7 @@ export const getAllProducts = async (req, res) => {
 };
 
 export const getProductsById = async (req, res) => {
-  console.log("user",req.user)
+  // console.log("user",req.user)
   const productId=req.params.id;
   try {
     const product = await Product.findById(productId); //find product by Id
