@@ -45,10 +45,10 @@ const router = express.Router();
 
 router.get("/", getAllProducts);  // Admin
 router.get("/search", searchByName);
-router.get("/:id", getProductsById); // Admin
 router.get("/featured", getFeaturedProducts);
 router.get("/category/:category", getProductByCategory);
 router.get("/recommendations", getRecommendedProducts); // Admin
+router.get("/:id", getProductsById); // Admin
 
 // Use `upload.single("image")` for image upload
 router.post("/", upload.single("image"), createProduct); // Admin

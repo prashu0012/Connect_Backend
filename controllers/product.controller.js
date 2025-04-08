@@ -202,9 +202,12 @@ export const getProductByCategory = async (req, res) => {
   try {
     const rawCategory = req.params.category;
     const category = rawCategory.replace(/-/g, " ");
+    
+    const regex = new RegExp(`^${category}$`, "i");
+    console.log({$regex:regex})
 
     const products = await Product.find({
-      category: `{$regex: new RegExp(^${category}$, "i")}`,
+      category: {$regex:regex},
     });
 
     res.status(200).json(products);
