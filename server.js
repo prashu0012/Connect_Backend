@@ -20,6 +20,13 @@ import productVariantRoutes from "./routes/productVariant.route.js";
 import supportTickerRoutes from "./routes/supportTicket.route.js";
 import subsRoutes from "./routes/subscription.route.js";
 
+// checkout implementation
+import bodyParser from "body-parser";
+import { v4 as uuidv4 } from 'uuid';
+import checkoutRoutes from "./routes/checkout.route.js";
+import crypto from "crypto";
+
+
 dotenv.config();
 
 const app = express();
@@ -54,6 +61,7 @@ app.use("/api/category", categoryRoutes);
 app.use("/api/products/:id/variants", productVariantRoutes);
 app.use("/api/tickets", supportTickerRoutes);
 app.use("/api/subscription", subsRoutes);
+app.use("/api", checkoutRoutes)
 
 // Start Server
 app.listen(PORT, () => {
@@ -61,3 +69,55 @@ app.listen(PORT, () => {
     
     connectDB();
 });
+
+// Checkout page implementation
+
+
+// Verify Razorpay webhook signature
+const verifyRazorpayWebhook = (req) => {
+    const webhookSecret = process.env.RAZORPAY_WEBHOOK_SECRET;
+    const signature = req.headers['x-razorpay-signature'];
+    
+    const shasum = crypto.createHmac('sha256', webhookSecret);
+    shasum.update(JSON.stringify(req.body));
+    const digest = shasum.digest('hex');
+    
+    return digest === signature;
+  };
+  
+  // Razorpay webhook endpoint
+  app.post('/api/razorpay-webhook', async (req, res) => {
+    try {
+      // Verify the webhook signature
+      const isValid = verifyRazorpayWebhook(req);
+      if (!isValid) {
+        return res.status(401).json({ error: 'Invalid signature' });
+      }
+      
+      // Handle different event types
+      const event = req.body.event;
+      
+      if (event === 'payment.authorized') {
+        const paymentId = req.body.payload.payment.entity.id;
+        const orderId = req.body.payload.payment.entity.notes.order_id;
+        
+        // Update order status to 'paid'
+        await Order.findByIdAndUpdate(orderId, {
+          status: 'paid',
+          transactionId: paymentId,
+          paymentDate: new Date()
+        });
+        
+        // You can also trigger additional actions here like:
+        // - Sending order confirmation email
+        // - Updating inventory
+        // - Creating invoice
+      }
+      
+      // Always respond with 200 to Razorpay
+      res.status(200).json({ received: true });
+    } catch (error) {
+      console.error('Webhook error:', error);
+      res.status(500).json({ error: error.message });
+    }
+  });
